@@ -1,4 +1,4 @@
-# AI-Career-Mentor-Platform
+# techtalks-career-mentor-platform
 # Group D Next.Js
 # Teams
 Khalil AL Youssef
