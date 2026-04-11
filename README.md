@@ -11,7 +11,7 @@ Career Mentor platform project for Group D.
 - Kassem Saadi
 
 ## Next.js setup
-This repository now includes the required base files for a Next.js (App Router + TypeScript) project.
+This repository now includes the required base files for a Next.js 
 
 ### Install dependencies
 ```bash
