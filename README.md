@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Career Mentor AI – Setup Guide
 
-## Getting Started
+## 📦 1. Clone the Repository
 
-First, run the development server:
+```bash
+git clone https://github.com/KhalilCodely/techtalks-career-mentor.git
+cd techtalks-career-mentor
+git checkout feature/setup-database
+```
+
+---
+
+## 📥 2. Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 🔐 3. Setup Environment Variables
+
+Create a `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Then open `.env` and update:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/career_mentor"
+```
+
+👉 Replace:
+
+* `USER` → your PostgreSQL username
+* `PASSWORD` → your PostgreSQL password
+
+---
+
+## 🗄️ 4. Setup PostgreSQL Database
+
+Make sure PostgreSQL is installed and running.
+
+Create the database:
+
+```sql
+CREATE DATABASE career_mentor;
+```
+
+---
+
+## ⚙️ 5. Run Prisma Migrations
+
+```bash
+npx prisma migrate dev
+```
+
+👉 This will:
+
+* Create all tables
+* Sync database with schema
+
+---
+
+## 🧠 6. Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+---
+
+## 🔍 7. (Optional) Open Database UI
+
+```bash
+npx prisma studio
+```
+
+👉 If Studio fails, use pgAdmin instead.
+
+---
+
+## ▶️ 8. Run the Project
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 👥 Team Notes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* Do NOT commit `.env`
+* Always pull latest changes before working:
 
-## Learn More
+  ```bash
+  git pull
+  ```
+* After pulling schema changes, run:
 
-To learn more about Next.js, take a look at the following resources:
+  ```bash
+  npx prisma migrate dev
+  ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Troubleshooting
 
-## Deploy on Vercel
+### ❌ Database connection error
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* Check PostgreSQL is running
+* Verify `DATABASE_URL`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### ❌ No tables found
+
+```bash
+npx prisma migrate dev
+```
+
+### ❌ Prisma issues
+
+```bash
+npx prisma generate
+```
+
+---
+
+## ✅ You’re Ready!
+
+You can now start developing features using Prisma and Next.js 🚀
