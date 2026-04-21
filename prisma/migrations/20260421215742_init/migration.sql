@@ -32,10 +32,19 @@ CREATE TABLE "profiles" (
 );
 
 -- CreateTable
+CREATE TABLE "categories" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(80) NOT NULL,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "skills" (
     "id" UUID NOT NULL,
     "name" VARCHAR(120) NOT NULL,
-    "category" VARCHAR(80),
+    "category_id" UUID,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "skills_pkey" PRIMARY KEY ("id")
@@ -137,10 +146,13 @@ CREATE UNIQUE INDEX "profiles_user_id_key" ON "profiles"("user_id");
 CREATE INDEX "idx_profiles_experience_level" ON "profiles"("experience_level");
 
 -- CreateIndex
-CREATE INDEX "idx_skills_category" ON "skills"("category");
+CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "uq_skills_name_category" ON "skills"("name", "category");
+CREATE INDEX "idx_skills_category_id" ON "skills"("category_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "uq_skills_name_category" ON "skills"("name", "category_id");
 
 -- CreateIndex
 CREATE INDEX "idx_user_skills_user_id" ON "user_skills"("user_id");
@@ -152,7 +164,7 @@ CREATE INDEX "idx_user_skills_skill_id" ON "user_skills"("skill_id");
 CREATE UNIQUE INDEX "uq_user_skills_user_skill" ON "user_skills"("user_id", "skill_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "uq_career_paths_title" ON "career_paths"("title");
+CREATE UNIQUE INDEX "career_paths_title_key" ON "career_paths"("title");
 
 -- CreateIndex
 CREATE INDEX "idx_user_career_paths_user_id" ON "user_career_paths"("user_id");
@@ -189,6 +201,9 @@ CREATE UNIQUE INDEX "uq_user_progress_user_course" ON "user_progress"("user_id",
 
 -- AddForeignKey
 ALTER TABLE "profiles" ADD CONSTRAINT "profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "skills" ADD CONSTRAINT "skills_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "user_skills" ADD CONSTRAINT "user_skills_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
