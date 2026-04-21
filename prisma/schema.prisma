@@ -6,6 +6,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum UserRole {
   USER
   ADMIN
@@ -25,6 +26,7 @@ model User {
   role              UserRole           @default(USER)
   createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
   profile           Profile?
   userSkills        UserSkill[]
   userCareerPaths   UserCareerPath[]
@@ -45,22 +47,35 @@ model Profile {
   careerGoal      String?  @map("career_goal") @db.Text
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([experienceLevel], map: "idx_profiles_experience_level")
   @@map("profiles")
 }
 
-model Skill {
+model Category {
   id        String   @id @default(uuid()) @db.Uuid
-  name      String   @db.VarChar(120)
-  category  String?  @db.VarChar(80)
+  name      String   @unique @db.VarChar(80)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  userSkills UserSkill[]
-  courses   Course[]
 
-  @@unique([name, category], map: "uq_skills_name_category")
-  @@index([category], map: "idx_skills_category")
+  skills Skill[]
+
+  @@map("categories")
+}
+
+model Skill {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String    @db.VarChar(120)
+  categoryId String?   @map("category_id") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  userSkills UserSkill[]
+  courses    Course[]
+
+  @@unique([name, categoryId], map: "uq_skills_name_category")
+  @@index([categoryId], map: "idx_skills_category_id")
   @@map("skills")
 }
 
@@ -71,8 +86,9 @@ model UserSkill {
   level     Int      @db.SmallInt
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([userId, skillId], map: "uq_user_skills_user_skill")
   @@index([userId], map: "idx_user_skills_user_id")
@@ -82,13 +98,13 @@ model UserSkill {
 
 model CareerPath {
   id          String           @id @default(uuid()) @db.Uuid
-  title       String           @db.VarChar(160)
+  title       String           @unique @db.VarChar(160)
   description String?          @db.Text
   createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  users       UserCareerPath[]
 
-  @@unique([title], map: "uq_career_paths_title")
+  users UserCareerPath[]
+
   @@map("career_paths")
 }
 
@@ -99,8 +115,9 @@ model UserCareerPath {
   progress     Decimal    @default(0) @db.Decimal(5, 2)
   createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  careerPath   CareerPath @relation(fields: [careerPathId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  careerPath CareerPath @relation(fields: [careerPathId], references: [id], onDelete: Restrict)
 
   @@unique([userId, careerPathId], map: "uq_user_career_paths_user_path")
   @@index([userId], map: "idx_user_career_paths_user_id")
@@ -114,7 +131,8 @@ model AiChat {
   message   String   @db.Text
   response  String   @db.Text
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt], map: "idx_ai_chats_user_created_at")
   @@map("ai_chats")
@@ -126,7 +144,8 @@ model AiRecommendation {
   type      RecommendationType
   content   Json
   createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, type], map: "idx_ai_recommendations_user_type")
   @@index([createdAt], map: "idx_ai_recommendations_created_at")
@@ -134,15 +153,16 @@ model AiRecommendation {
 }
 
 model Course {
-  id        String         @id @default(uuid()) @db.Uuid
-  title     String         @db.VarChar(200)
-  provider  String         @db.VarChar(120)
-  url       String         @db.VarChar(2048)
-  skillId   String         @map("skill_id") @db.Uuid
-  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
-  skill     Skill          @relation(fields: [skillId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  progress  UserProgress[]
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String   @db.VarChar(200)
+  provider  String   @db.VarChar(120)
+  url       String   @db.VarChar(2048)
+  skillId   String   @map("skill_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  skill    Skill          @relation(fields: [skillId], references: [id], onDelete: Restrict)
+  progress UserProgress[]
 
   @@index([skillId], map: "idx_courses_skill_id")
   @@index([provider], map: "idx_courses_provider")
@@ -157,8 +177,9 @@ model UserProgress {
   progress  Decimal  @default(0) @db.Decimal(5, 2)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId], map: "uq_user_progress_user_course")
   @@index([userId], map: "idx_user_progress_user_id")
