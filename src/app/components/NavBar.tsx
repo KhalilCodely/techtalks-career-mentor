@@ -20,9 +20,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
-      const sections = links.map((l) =>
-        document.querySelector(l.href)
-      );
+      const sections = links.map((l) => document.querySelector(l.href));
 
       sections.forEach((sec, i) => {
         if (!sec) return;
@@ -48,10 +46,8 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-
-        {/* 🔥 Logo */}
+        {/* Logo */}
         <div className="flex items-center gap-3 cursor-pointer">
-          
           <motion.div
             animate={{
               boxShadow: [
@@ -75,7 +71,7 @@ export default function Navbar() {
           </motion.h1>
         </div>
 
-        {/* 🖥️ Desktop Links */}
+        {/* Desktop Links */}
         <div className="hidden md:flex gap-8 text-sm">
           {links.map((link) => (
             <a key={link.href} href={link.href} className="relative group">
@@ -92,16 +88,14 @@ export default function Navbar() {
               {/* underline */}
               <span
                 className={`absolute left-0 -bottom-1 h-0.5 bg-black dark:bg-white transition-all duration-300 ${
-                  active === link.href
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
+                  active === link.href ? "w-full" : "w-0 group-hover:w-full"
                 }`}
               />
             </a>
           ))}
         </div>
 
-        {/* 👉 Right side */}
+        {/* Right side */}
         <div className="flex items-center gap-4">
           <Link href="/login" className="text-sm hidden md:block">
             Login
@@ -116,17 +110,14 @@ export default function Navbar() {
             </Link>
           </motion.div>
 
-          {/* 📱 Mobile button */}
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden text-xl"
-          >
+          {/* Mobile button */}
+          <button onClick={() => setOpen(!open)} className="md:hidden text-xl">
             ☰
           </button>
         </div>
       </div>
 
-      {/* 📱 Mobile Menu */}
+      {/* Mobile Menu */}
       {open && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -159,3 +150,4 @@ export default function Navbar() {
     </motion.nav>
   );
 }
+

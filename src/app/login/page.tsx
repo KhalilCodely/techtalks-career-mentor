@@ -52,9 +52,12 @@ export default function LoginPage() {
       }
 
       localStorage.setItem("auth_token", data.token);
+      if (data.user) {
+        localStorage.setItem("auth_user", JSON.stringify(data.user));
+      }
       setSuccess("Welcome back! Redirecting...");
 
-      setTimeout(() => router.push("/"), 1200);
+      setTimeout(() => router.push("/userboard"), 1200);
     } catch {
       setError("Unexpected error. Try again.");
     } finally {
