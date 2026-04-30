@@ -20,10 +20,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    // Parallelize user and career path lookups (reduce from 4 sequential to ~2 calls)
+    // Use select: { id: true } to avoid over-fetching
+    const [user, careerPath] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      }),
+      prisma.careerPath.findUnique({
+        where: { id: careerPathId },
+        select: { id: true },
+      }),
+    ]);
 
     if (!user) {
       return NextResponse.json(
@@ -34,11 +42,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    // Check if career path exists
-    const careerPath = await prisma.careerPath.findUnique({
-      where: { id: careerPathId },
-    });
 
     if (!careerPath) {
       return NextResponse.json(

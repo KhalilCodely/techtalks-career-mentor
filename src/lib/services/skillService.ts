@@ -13,16 +13,8 @@ export async function createSkill(
   data: CreateSkillRequest
 ): Promise<SkillResponse> {
   try {
-    // Verify category exists
-    const category = await prisma.category.findUnique({
-      where: { id: data.categoryId },
-    });
-
-    if (!category) {
-      throw new Error(`Category with ID "${data.categoryId}" not found`);
-    }
-
-    // Create skill
+    // Attempt create directly - Prisma enforces FK constraint if category doesn't exist
+    // This eliminates the separate verification query (N+1 pattern)
     const skill = await prisma.skill.create({
       data: {
         name: data.name,
@@ -33,6 +25,9 @@ export async function createSkill(
     return skill;
   } catch (error) {
     if (error instanceof Error) {
+      if (error.message.includes("Foreign key constraint failed")) {
+        throw new Error(`Category with ID "${data.categoryId}" not found`);
+      }
       if (error.message.includes("Unique constraint failed")) {
         throw new Error(
           `Skill "${data.name}" already exists in this category`
@@ -82,17 +77,8 @@ export async function updateSkill(
   data: UpdateSkillRequest
 ): Promise<SkillResponse> {
   try {
-    // If updating categoryId, verify it exists
-    if (data.categoryId) {
-      const category = await prisma.category.findUnique({
-        where: { id: data.categoryId },
-      });
-
-      if (!category) {
-        throw new Error(`Category with ID "${data.categoryId}" not found`);
-      }
-    }
-
+    // Attempt update directly - Prisma enforces FK constraint if categoryId invalid
+    // This eliminates the separate category verification query
     const skill = await prisma.skill.update({
       where: { id },
       data: {
@@ -106,6 +92,9 @@ export async function updateSkill(
     if (error instanceof Error) {
       if (error.message.includes("Record to update not found")) {
         throw new Error(`Skill with ID "${id}" not found`);
+      }
+      if (error.message.includes("Foreign key constraint failed")) {
+        throw new Error(`Category with ID "${data.categoryId}" not found`);
       }
       if (error.message.includes("Unique constraint failed")) {
         throw new Error(
@@ -145,10 +134,16 @@ export async function deleteSkill(id: string): Promise<SkillResponse> {
 /**
  * Get skills by category
  */
-export async function getSkillsByCategory(categoryId: string): Promise<SkillResponse[]> {
+export async function getSkillsByCategory(
+  categoryId: string,
+  skip: number = 0,
+  take: number = 100
+): Promise<SkillResponse[]> {
   const skills = await prisma.skill.findMany({
     where: { categoryId },
     orderBy: { name: "asc" },
+    skip,
+    take,
   });
 
   return skills;

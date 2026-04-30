@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Frontend Development", "description": "Building user interfaces and client-side applications" },
+  { "id": 2, "name": "Backend Development", "description": "Server-side programming and API development" },
+  { "id": 3, "name": "Database & Storage", "description": "Data storage, querying, and management technologies" },
+  { "id": 4, "name": "DevOps & Cloud", "description": "Infrastructure, CI/CD, and cloud platform skills" },
+  { "id": 5, "name": "Mobile Development", "description": "Building native and cross-platform mobile applications" },
+  { "id": 6, "name": "Data Science & AI", "description": "Machine learning, data analysis, and artificial intelligence" },
+  { "id": 7, "name": "Cybersecurity", "description": "Protecting systems, networks, and data from digital attacks" },
+  { "id": 8, "name": "UI/UX Design", "description": "Designing user experiences and interfaces" },
+  { "id": 9, "name": "Testing & QA", "description": "Ensuring software quality through testing methodologies" },
+  { "id": 10, "name": "Soft Skills & Methodology", "description": "Professional and collaborative development practices" }
+]

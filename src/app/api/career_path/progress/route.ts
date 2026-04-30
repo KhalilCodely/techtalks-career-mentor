@@ -30,44 +30,36 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Check if enrollment exists
-    const enrollment = await prisma.userCareerPath.findUnique({
-      where: {
-        userId_careerPathId: {
-          userId,
-          careerPathId,
+    // Single update operation - eliminates separate read verification query
+    // Prisma throws P2025 if record not found
+    let updated;
+    try {
+      updated = await prisma.userCareerPath.update({
+        where: {
+          userId_careerPathId: {
+            userId,
+            careerPathId,
+          },
         },
-      },
-      include: {
-        careerPath: true,
-      },
-    });
-
-    if (!enrollment) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "User enrollment not found",
+        data: {
+          progress: progress,
         },
-        { status: 404 }
-      );
+        include: {
+          careerPath: true,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('P2025')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "User enrollment not found",
+          },
+          { status: 404 }
+        );
+      }
+      throw error;
     }
-
-    // Update progress
-    const updated = await prisma.userCareerPath.update({
-      where: {
-        userId_careerPathId: {
-          userId,
-          careerPathId,
-        },
-      },
-      data: {
-        progress: progress,
-      },
-      include: {
-        careerPath: true,
-      },
-    });
 
     return NextResponse.json(
       {

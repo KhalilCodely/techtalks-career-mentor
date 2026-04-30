@@ -35,13 +35,17 @@ export async function createCategory(
  * Get all categories
  */
 export async function getAllCategories(
-  includeSkills: boolean = false
+  includeSkills: boolean = false,
+  skip: number = 0,
+  take: number = 100
 ): Promise<CategoryResponse[] | CategoryWithSkillsResponse[]> {
   const categories = await prisma.category.findMany({
     include: includeSkills ? { skills: true } : undefined,
     orderBy: {
       name: "asc",
     },
+    skip,
+    take,
   });
 
   return categories;

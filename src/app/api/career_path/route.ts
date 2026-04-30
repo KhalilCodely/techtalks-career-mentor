@@ -12,6 +12,13 @@ export async function GET(request: NextRequest) {
 
     // If userId is provided, get user's enrolled paths
     if (userId) {
+      // Add pagination to prevent unbounded result sets
+      const skip = request.nextUrl.searchParams.get("skip");
+      const take = request.nextUrl.searchParams.get("take");
+      
+      const skipNum = skip ? Math.max(0, parseInt(skip, 10)) : 0;
+      const takeNum = take ? Math.min(Math.max(1, parseInt(take, 10)), 100) : 20;
+
       const userCareerPaths = await prisma.userCareerPath.findMany({
         where: { userId },
         include: {
@@ -20,6 +27,8 @@ export async function GET(request: NextRequest) {
         orderBy: {
           createdAt: "desc",
         },
+        skip: skipNum,
+        take: takeNum,
       });
 
       return NextResponse.json(
@@ -32,11 +41,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Otherwise, get all career paths
+    // Otherwise, get all career paths with pagination
+    const skip = request.nextUrl.searchParams.get("skip");
+    const take = request.nextUrl.searchParams.get("take");
+    
+    const skipNum = skip ? Math.max(0, parseInt(skip, 10)) : 0;
+    const takeNum = take ? Math.min(Math.max(1, parseInt(take, 10)), 100) : 20;
+
     const careerPaths = await prisma.careerPath.findMany({
       orderBy: {
         createdAt: "desc",
       },
+      skip: skipNum,
+      take: takeNum,
     });
 
     return NextResponse.json(
@@ -83,6 +100,7 @@ export async function POST(request: NextRequest) {
     // Check for duplicate title
     const existing = await prisma.careerPath.findUnique({
       where: { title: title.trim() },
+      select: { id: true },
     });
 
     if (existing) {

@@ -94,9 +94,10 @@ export async function PUT(
       );
     }
 
-    // Check if career path exists
+    // Fetch only id and title for duplicate detection (avoid over-fetching)
     const existing = await prisma.careerPath.findUnique({
       where: { id },
+      select: { id: true, title: true },
     });
 
     if (!existing) {
@@ -145,6 +146,7 @@ export async function PUT(
     if (updateData.title && updateData.title !== existing.title) {
       const duplicate = await prisma.careerPath.findUnique({
         where: { title: updateData.title },
+        select: { id: true },
       });
 
       if (duplicate) {
@@ -229,25 +231,23 @@ export async function DELETE(
       );
     }
 
-    // Check if career path exists
-    const existing = await prisma.careerPath.findUnique({
-      where: { id },
-    });
-
-    if (!existing) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Career path not found",
-        },
-        { status: 404 }
-      );
+    // Delete career path - Prisma throws P2025 if not found
+    try {
+      await prisma.careerPath.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('P2025')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Career path not found",
+          },
+          { status: 404 }
+        );
+      }
+      throw error;
     }
-
-    // Delete career path (cascade will handle user enrollments)
-    await prisma.careerPath.delete({
-      where: { id },
-    });
 
     return NextResponse.json(
       {
