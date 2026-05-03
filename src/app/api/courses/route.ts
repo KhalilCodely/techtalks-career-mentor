@@ -6,6 +6,7 @@ const formatCourse = (course: {
   title: string;
   provider: string;
   url: string;
+  imageUrl: string | null;
   skillId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -31,6 +32,7 @@ const formatCourse = (course: {
   title: course.title,
   provider: course.provider,
   url: course.url,
+  imageUrl: course.imageUrl,
   skillId: course.skillId,
   skill: {
     id: course.skill.id,
