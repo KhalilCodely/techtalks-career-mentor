@@ -26,6 +26,46 @@ type CreateSkillResponse = {
   error?: string;
 };
 
+const buildSkillLearnInfo = (skill: Skill) => {
+  const fallbackDescription = `Build practical knowledge in ${skill.name} with beginner-friendly tutorials and projects.`;
+  const slug = encodeURIComponent(skill.name);
+
+  const curatedByCategory: Record<string, { description: string; link: string; label: string }> = {
+    frontend: {
+      description: "Learn to build interactive UI with modern HTML, CSS, JavaScript, and frameworks.",
+      link: `https://www.freecodecamp.org/news/search/?query=${slug}`,
+      label: "Frontend guide",
+    },
+    backend: {
+      description: "Understand APIs, databases, authentication, and server-side architecture.",
+      link: `https://roadmap.sh/backend`,
+      label: "Backend roadmap",
+    },
+    devops: {
+      description: "Master CI/CD, containers, cloud deployment, and monitoring fundamentals.",
+      link: `https://roadmap.sh/devops`,
+      label: "DevOps roadmap",
+    },
+    data: {
+      description: "Practice data cleaning, visualization, SQL, and analytical storytelling.",
+      link: `https://www.kaggle.com/learn`,
+      label: "Kaggle learning",
+    },
+  };
+
+  const categoryKey = (skill.category || "").toLowerCase();
+  const matchedCategory = Object.keys(curatedByCategory).find((key) => categoryKey.includes(key));
+  if (matchedCategory) {
+    return curatedByCategory[matchedCategory];
+  }
+
+  return {
+    description: fallbackDescription,
+    link: `https://www.coursera.org/search?query=${slug}`,
+    label: `Learn ${skill.name}`,
+  };
+};
+
 export default function SkillsDashboard() {
   const router = useRouter();
 
@@ -319,8 +359,12 @@ export default function SkillsDashboard() {
               <motion.div
                 key={skill.id}
                 whileHover={{ y: -4, scale: 1.01 }}
-                className="rounded-2xl border border-white/40 bg-white/80 p-5 shadow-md dark:border-white/5 dark:bg-zinc-900/90"
+                className="group rounded-2xl border border-white/40 bg-white/80 p-5 shadow-md dark:border-white/5 dark:bg-zinc-900/90"
               >
+                {(() => {
+                  const learnInfo = buildSkillLearnInfo(skill);
+                  return (
+                    <>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="text-base font-semibold text-zinc-900 dark:text-white">
@@ -339,6 +383,22 @@ export default function SkillsDashboard() {
                     {skill.category || "Uncategorized"}
                   </span>
                 </div>
+                <div className="mt-3 hidden rounded-xl border border-blue-200/70 bg-blue-50/80 p-3 text-xs text-blue-900 transition group-hover:block dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-100">
+                  <p className="mb-2">{learnInfo.description}</p>
+                  <a
+                    href={learnInfo.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 font-medium text-blue-700 hover:bg-blue-100 dark:bg-zinc-900 dark:text-blue-200 dark:hover:bg-zinc-800"
+                  >
+                    <span aria-hidden>📘</span>
+                    <span>{learnInfo.label}</span>
+                    <span aria-hidden>↗</span>
+                  </a>
+                </div>
+                    </>
+                  );
+                })()}
               </motion.div>
             ))}
           </div>
@@ -415,4 +475,3 @@ export default function SkillsDashboard() {
     </div>
   );
 }
-
