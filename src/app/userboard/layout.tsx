@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getAuth, clearAuth } from "@/lib/auth-client";
 
@@ -10,7 +10,11 @@ export default function UserboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const auth = getAuth();
+  const auth = useSyncExternalStore(
+    () => () => undefined,
+    getAuth,
+    () => null
+  );
 
   useEffect(() => {
     if (!auth) {
