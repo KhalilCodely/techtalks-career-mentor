@@ -41,6 +41,7 @@ export default function CareerPathDashboard() {
   const [paths, setPaths] = useState<CareerPath[]>([]);
   const [enrolled, setEnrolled] = useState<UserEnrollment[]>([]);
   const [selectedPath, setSelectedPath] = useState<CareerPath | null>(null);
+  const [selectedPathId, setSelectedPathId] = useState("");
   const [goal, setGoal] = useState("");
   const [currentSkills, setCurrentSkills] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("beginner");
@@ -82,6 +83,7 @@ export default function CareerPathDashboard() {
 
       if (!selectedPath && allPathsJson.data?.length) {
         setSelectedPath(allPathsJson.data[0]);
+        setSelectedPathId(allPathsJson.data[0].id);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load career path data.");
@@ -96,6 +98,12 @@ export default function CareerPathDashboard() {
   }, []);
 
   const enrolledPathIds = useMemo(() => new Set(enrolled.map((e) => e.careerPathId)), [enrolled]);
+
+  const onSelectPath = (careerPathId: string) => {
+    setSelectedPathId(careerPathId);
+    const nextPath = paths.find((path) => path.id === careerPathId) ?? null;
+    setSelectedPath(nextPath);
+  };
 
   const enrollPath = async (careerPathId: string) => {
     const auth = getAuth();
@@ -258,6 +266,20 @@ export default function CareerPathDashboard() {
         )}
       </div>
 
+      <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2">Select a career path from database (up to 20)</label>
+        <select
+          value={selectedPathId}
+          onChange={(e) => onSelectPath(e.target.value)}
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+        >
+          <option value="" disabled>Select a career path</option>
+          {paths.map((path) => (
+            <option key={path.id} value={path.id}>{path.title}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="text-lg font-semibold mb-3">Career path catalog</h2>
@@ -273,7 +295,7 @@ export default function CareerPathDashboard() {
                         <p className="text-xs text-zinc-500 mt-1">{path.description || "No description"}</p>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => setSelectedPath(path)} className="text-xs rounded-md border px-2 py-1">View</button>
+                        <button onClick={() => onSelectPath(path.id)} className="text-xs rounded-md border px-2 py-1">View</button>
                         <button disabled={busy || isEnrolled} onClick={() => enrollPath(path.id)} className="text-xs rounded-md bg-indigo-600 text-white px-2 py-1 disabled:opacity-50">{isEnrolled ? "Enrolled" : "Enroll"}</button>
                       </div>
                     </div>
