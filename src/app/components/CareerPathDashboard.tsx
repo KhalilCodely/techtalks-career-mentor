@@ -261,10 +261,10 @@ export default function CareerPathDashboard() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-              Career Path Dashboard
+              Career Paths Dashboard
             </h1>
             <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2">
-              Track your enrolled paths, update progress, and discover new journeys.
+              Track your enrolled career paths, update progress, and discover new options.
             </p>
           </div>
         </div>
