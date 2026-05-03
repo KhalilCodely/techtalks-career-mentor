@@ -3,8 +3,8 @@
  * Business logic for skill operations
  */
 
-import { prisma } from "./prisma";
-import { CreateSkillRequest, UpdateSkillRequest, SkillResponse, SkillWithCategoryResponse } from "./validation/skill";
+import { prisma } from "../prisma";
+import { CreateSkillRequest, UpdateSkillRequest, SkillResponse, SkillWithCategoryResponse } from "../validation/skill";
 
 /**
  * Create a new skill

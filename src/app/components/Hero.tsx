@@ -1,8 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getAuthToken } from "@/lib/api";
 
 export default function Hero() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!getAuthToken());
+  }, []);
+
   return (
     <section className="relative h-screen flex items-center justify-center text-center px-6 overflow-hidden bg-gradient-to-br from-indigo-100 via-white to-blue-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
 
@@ -46,23 +55,24 @@ export default function Hero() {
           className="flex justify-center gap-4"
         >
           {/* Primary Button */}
-          <motion.a
-            href="/signup"
-            whileHover={{
-              scale: 1.08,
-              rotate: -1,
-            }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-black text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-2xl transition"
-          >
-            Start Free
-          </motion.a>
+          <Link href={isAuthenticated ? "/dashboard" : "/signup"}>
+            <motion.div
+              whileHover={{
+                scale: 1.08,
+                rotate: -1,
+              }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-black text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer"
+            >
+              {isAuthenticated ? "Go to Dashboard" : "Start Free"}
+            </motion.div>
+          </Link>
 
           {/* Secondary Button */}
           <motion.a
             href="#features"
             whileHover={{ scale: 1.05 }}
-            className="border px-6 py-3 rounded-xl backdrop-blur bg-white/50 dark:bg-zinc-800/50"
+            className="border px-6 py-3 rounded-xl backdrop-blur bg-white/50 dark:bg-zinc-800/50 cursor-pointer"
           >
             Learn More
           </motion.a>

@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { signup } from "@/lib/api/services/authService";
 
 const validateEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
@@ -41,29 +42,13 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          password,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data?.error || "Signup failed.");
-        return;
-      }
-
-      setSuccess("Account created! Redirecting...");
+      await signup(name.trim(), email.trim().toLowerCase(), password);
+      setSuccess("Account created! Redirecting to login...");
       setTimeout(() => router.push("/login"), 1200);
-    } catch {
-      setError("Unexpected error. Try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Signup failed. Try again."
+      );
     } finally {
       setLoading(false);
     }

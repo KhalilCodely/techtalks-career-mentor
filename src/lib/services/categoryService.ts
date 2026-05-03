@@ -3,8 +3,8 @@
  * Business logic for category operations
  */
 
-import { prisma } from "./prisma";
-import { CreateCategoryRequest, UpdateCategoryRequest, CategoryResponse, CategoryWithSkillsResponse } from "./validation/category";
+import { prisma } from "../prisma";
+import { CreateCategoryRequest, UpdateCategoryRequest, CategoryResponse, CategoryWithSkillsResponse } from "../validation/category";
 
 /**
  * Create a new category

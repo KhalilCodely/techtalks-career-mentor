@@ -18,19 +18,22 @@ enum RecommendationType {
 }
 
 model User {
-  id                String             @id @default(uuid()) @db.Uuid
-  name              String             @db.VarChar(120)
-  email             String             @unique @db.VarChar(255)
-  passwordHash      String             @map("password_hash") @db.VarChar(255)
-  role              UserRole           @default(USER)
-  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  profile           Profile?
-  userSkills        UserSkill[]
-  userCareerPaths   UserCareerPath[]
-  aiChats           AiChat[]
-  aiRecommendations AiRecommendation[]
-  userProgress      UserProgress[]
+  id                         String             @id @default(uuid()) @db.Uuid
+  name                       String             @db.VarChar(120)
+  email                      String             @unique @db.VarChar(255)
+  passwordHash               String             @map("password_hash") @db.VarChar(255)
+  role                       UserRole           @default(USER)
+  emailNotifications         Boolean            @default(true) @map("email_notifications")
+  weeklyProgressReports      Boolean            @default(true) @map("weekly_progress_reports")
+  communityUpdates           Boolean            @default(false) @map("community_updates")
+  createdAt                  DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                  DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  profile                    Profile?
+  userSkills                 UserSkill[]
+  userCareerPaths            UserCareerPath[]
+  aiChats                    AiChat[]
+  aiRecommendations          AiRecommendation[]
+  userProgress               UserProgress[]
 
   @@index([createdAt], map: "idx_users_created_at")
   @@map("users")

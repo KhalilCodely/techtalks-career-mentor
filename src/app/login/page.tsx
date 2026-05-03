@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { login } from "@/lib/api/services/authService";
 
 const validateEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
@@ -35,28 +36,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data?.error || "Login failed.");
-        return;
-      }
-
-      localStorage.setItem("auth_token", data.token);
+      await login(email.trim().toLowerCase(), password);
       setSuccess("Welcome back! Redirecting...");
-
       setTimeout(() => router.push("/"), 1200);
-    } catch {
-      setError("Unexpected error. Try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Login failed. Try again."
+      );
     } finally {
       setLoading(false);
     }

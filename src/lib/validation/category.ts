@@ -9,7 +9,7 @@ export interface CreateCategoryRequest {
 
 export interface UpdateCategoryRequest {
   name?: string;
-  description?: string;
+  description?: string | null;
 }
 
 export interface CategoryResponse {

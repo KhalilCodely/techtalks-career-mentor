@@ -3,18 +3,25 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { getAuthToken, clearAuthToken } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 const links = [
   { name: "Features", href: "#features" },
   { name: "AI Demo", href: "#ai-demo" },
-  { name: "Dashboard", href: "#dashboard" },
   { name: "Reviews", href: "#reviews" },
 ];
 
 export default function Navbar() {
+  const router = useRouter();
   const [active, setActive] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!getAuthToken());
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +43,13 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    clearAuthToken();
+    setIsAuthenticated(false);
+    setOpen(false);
+    router.push("/");
+  };
 
   return (
     <motion.nav
@@ -103,18 +117,51 @@ export default function Navbar() {
 
         {/* 👉 Right side */}
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm hidden md:block">
-            Login
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link href="/dashboard" className="text-sm hidden md:block text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition">
+                Dashboard
+              </Link>
+              <Link href="/categories" className="text-sm hidden md:block text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition">
+                Categories
+              </Link>
+              <Link href="/career-path" className="text-sm hidden md:block text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition">
+                Paths
+              </Link>
+              <Link href="/progress" className="text-sm hidden md:block text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition">
+                Progress
+              </Link>
+              <Link href="/profile" className="text-sm hidden md:block text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition">
+                Profile
+              </Link>
+              <Link href="/admin" className="text-sm hidden md:block text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition font-medium">
+                Admin
+              </Link>
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogout}
+                className="bg-linear-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:shadow-xl transition"
+              >
+                Logout
+              </motion.button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="text-sm hidden md:block text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition">
+                Login
+              </Link>
 
-          <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
-            <Link
-              href="/signup"
-              className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:shadow-xl transition"
-            >
-              Get Started
-            </Link>
-          </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  href="/signup"
+                  className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:shadow-xl transition"
+                >
+                  Get Started
+                </Link>
+              </motion.div>
+            </>
+          )}
 
           {/* 📱 Mobile button */}
           <button
@@ -144,16 +191,49 @@ export default function Navbar() {
             </a>
           ))}
 
-          <Link href="/login" className="block text-sm">
-            Login
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link href="/dashboard" className="block text-sm" onClick={() => setOpen(false)}>
+                Dashboard
+              </Link>
+              <Link href="/categories" className="block text-sm" onClick={() => setOpen(false)}>
+                Categories
+              </Link>
+              <Link href="/career-path" className="block text-sm" onClick={() => setOpen(false)}>
+                Career Paths
+              </Link>
+              <Link href="/progress" className="block text-sm" onClick={() => setOpen(false)}>
+                Progress
+              </Link>
+              <Link href="/profile" className="block text-sm" onClick={() => setOpen(false)}>
+                Profile
+              </Link>
+              <Link href="/admin" className="block text-sm text-orange-600 dark:text-orange-400 font-medium" onClick={() => setOpen(false)}>
+                Admin Panel
+              </Link>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogout}
+                className="w-full bg-linear-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm text-center"
+              >
+                Logout
+              </motion.button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="block text-sm">
+                Login
+              </Link>
 
-          <Link
-            href="/signup"
-            className="block bg-linear-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm text-center"
-          >
-            Get Started
-          </Link>
+              <Link
+                href="/signup"
+                className="block bg-linear-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm text-center"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </motion.div>
       )}
     </motion.nav>
