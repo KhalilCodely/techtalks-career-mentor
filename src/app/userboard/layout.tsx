@@ -21,7 +21,7 @@ export default function UserboardLayout({ children }: { children: ReactNode }) {
   const navItems = [
     { label: "Skills", href: "/userboard/skills" },
     { label: "Courses", href: "/userboard/courses" },
-    { label: "Profile", href: "/userboard/profile" },
+    
   ];
 
   const initials = auth?.user?.name
