@@ -31,6 +31,8 @@ type UserEnrollment = {
   userId: string;
   careerPathId: string;
   progress: string;
+  completed: boolean;
+  completedAt: string | null;
   careerPath: CareerPath;
 };
 
@@ -229,6 +231,32 @@ export default function CareerPathDashboard() {
           </button>
         </div>
       </form>
+
+
+
+      <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <h2 className="text-lg font-semibold mb-3">Your career progress</h2>
+        {enrolled.length === 0 ? (
+          <p className="text-sm text-zinc-500">You are not enrolled in any career path yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {enrolled.map((item) => {
+              const progressValue = Number(item.progress);
+              return (
+                <div key={item.id} className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-700">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium">{item.careerPath.title}</p>
+                    <span className="text-xs text-zinc-500">{item.completed ? "Completed" : `${progressValue}%`}</span>
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.max(0, Math.min(100, progressValue))}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
