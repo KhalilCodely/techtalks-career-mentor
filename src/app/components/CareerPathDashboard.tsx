@@ -145,12 +145,10 @@ export default function CareerPathDashboard() {
     setSuccess("");
 
     try {
-      const composedGoal = [
-        `career_goal: ${goal.trim()}`,
-        `experience_level: ${experienceLevel}`,
-        `current_skills: ${currentSkills.trim() || "not provided"}`,
-        `constraints: ${constraints.trim() || "not provided"}`,
-      ].join(" | ");
+      const currentSkillsList = currentSkills
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter(Boolean);
 
       const res = await fetch("/api/career_path/generate", {
         method: "POST",
@@ -158,7 +156,12 @@ export default function CareerPathDashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.token}`,
         },
-        body: JSON.stringify({ goal: composedGoal }),
+        body: JSON.stringify({
+          careerGoal: goal.trim(),
+          experienceLevel,
+          currentSkills: currentSkillsList,
+          constraints: constraints.trim() || undefined,
+        }),
       });
 
       const json = await res.json();

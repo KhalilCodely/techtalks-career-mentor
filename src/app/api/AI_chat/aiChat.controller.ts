@@ -86,6 +86,72 @@ export interface SendMessageResponse {
   createdAt: Date;
 }
 
+interface RoadmapCourse {
+  title: string;
+  provider: string;
+  url: string;
+}
+
+interface RoadmapStep {
+  order: number;
+  title: string;
+  description: string;
+  skills: string[];
+  recommended_courses: RoadmapCourse[];
+  estimated_time_weeks: number;
+}
+
+interface RoadmapMilestone {
+  title: string;
+  description: string;
+}
+
+interface CareerRoadmap {
+  career: string;
+  summary: string;
+  skill_gap: string[];
+  steps: RoadmapStep[];
+  milestones: RoadmapMilestone[];
+  estimated_total_time_months: number;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function validateCareerRoadmapPayload(payload: unknown): payload is CareerRoadmap {
+  if (!payload || typeof payload !== "object") return false;
+  const candidate = payload as Partial<CareerRoadmap>;
+
+  if (typeof candidate.career !== "string" || typeof candidate.summary !== "string") return false;
+  if (!isStringArray(candidate.skill_gap)) return false;
+  if (typeof candidate.estimated_total_time_months !== "number") return false;
+  if (!Array.isArray(candidate.milestones) || !Array.isArray(candidate.steps)) return false;
+
+  const milestonesValid = candidate.milestones.every(
+    (item) => item && typeof item.title === "string" && typeof item.description === "string"
+  );
+  if (!milestonesValid) return false;
+
+  const stepsValid = candidate.steps.every((step) => {
+    if (!step || typeof step.order !== "number" || typeof step.title !== "string" || typeof step.description !== "string") {
+      return false;
+    }
+    if (!isStringArray(step.skills) || typeof step.estimated_time_weeks !== "number" || !Array.isArray(step.recommended_courses)) {
+      return false;
+    }
+    return step.recommended_courses.every(
+      (course) =>
+        course &&
+        typeof course.title === "string" &&
+        typeof course.provider === "string" &&
+        typeof course.url === "string"
+    );
+  });
+
+  return stepsValid;
+}
+
 /**
  * Send message to Claude and save both message and response
  */
@@ -123,11 +189,22 @@ export async function sendMessage(
       throw new Error("No response received from Claude");
     }
 
+    let parsedRoadmap: unknown;
+    try {
+      parsedRoadmap = JSON.parse(responseText);
+    } catch {
+      throw new Error("AI response is not valid JSON");
+    }
+
+    if (!validateCareerRoadmapPayload(parsedRoadmap)) {
+      throw new Error("AI response does not match required roadmap schema");
+    }
+
     // Save to database
     const savedChat = await aiChatService.createAiChat({
       userId,
       message: message.trim(),
-      response: responseText,
+      response: JSON.stringify(parsedRoadmap),
     });
 
     return savedChat;
